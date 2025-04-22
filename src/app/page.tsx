@@ -1,101 +1,81 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import styles from './App.module.css';
+import poweredImage from '../assets/powered.png';
+import "../styles/globals.css";
+import { useState } from 'react';
+import { levels, calculateImc, Level } from '../helpers/imc';
+import { GridItem } from '../components/GridItem';
+import leftArrowImage from '../assets/leftarrow.png';
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+const App = () => {
+    const [heightField, setHeightField] = useState<number>(0);
+    const [weightField, setWeightField] = useState<number>(0);
+    const [toShow, setToShow] = useState<Level | null>(null);
+
+    const handleCalculateButton = () => {
+        if(heightField > 0 && weightField > 0) {
+            setToShow(calculateImc(heightField, weightField));
+        }else {
+            alert('Preencha os campos corretamente.');
+        }
+    }
+
+    const handleBackButton = () => {
+        setToShow(null);
+        setHeightField(0);
+        setWeightField(0);
+    }
+
+    return (
+        <div className={styles.main}>
+            <header>
+                <div className={styles.headerContainer}>
+                    <img src={poweredImage.src} alt='' width={150} />
+                </div>
+            </header>
+            <div className={styles.container}>
+                <div className={styles.leftSide}>
+                    <h1>Calcule o seu IMC.</h1>
+                    <p>IMC é a sigla para Índice de Massa Corperal, parâmetro adotado pela Organização Mundial de Saúde para calcular o peso ideal de cada pessoa.</p>
+
+                    <input 
+                        type='number'
+                        placeholder='Digite sua altura em metros. Ex: 1.75'
+                        value={heightField > 0 ? heightField : ''}
+                        onChange={e => setHeightField(parseFloat(e.target.value))}
+                        disabled={toShow !== null}
+                    />
+                    <input 
+                        type='number'
+                        placeholder='Digite seu peso em kg. Ex: 75.5'
+                        value={weightField > 0 ? weightField : ''}
+                        onChange={e => setWeightField(parseFloat(e.target.value))}
+                        disabled={toShow !== null}
+                    />
+
+                    <button onClick={handleCalculateButton} disabled={toShow !== null}>Calcular</button>
+                </div>
+                <div className={styles.rightSide}>
+                    {!toShow &&
+                        <div className={styles.grid}>
+                            {levels.map((item, key) => (
+                                <GridItem key={key} item={item} />
+                            ))}
+                        </div>
+                    }
+                    {toShow &&
+                        <div className={styles.rightBig}>
+                            <div className={styles.rightArrow} onClick={handleBackButton}>
+                                <img src={leftArrowImage.src} alt='' width={25} />
+                            </div>
+                            <GridItem item={toShow} />
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
-}
+    );
+};
+
+export default App;
